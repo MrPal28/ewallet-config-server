@@ -71,3 +71,7 @@ spring:
           username: ${GATEWAY_HEADER_USERNAME}
           user-id: ${GATEWAY_HEADER_USER_ID}
           role: ${GATEWAY_HEADER_ROLE}
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_SERVICE_URL}
