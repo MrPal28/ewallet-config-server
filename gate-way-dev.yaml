@@ -5,7 +5,7 @@ server:
 spring:
   application:
     # Logical service name for Eureka registration
-    name: ${SPRING_APPLICATION_GATEWAY_NAME}
+    name: ${SPRING_APPLICATION_GATEWAY_NAME:gate-way}
 
   # ----------------------------------------------------------------------
   # Redis Connection (Used by Spring Cloud Gateway RateLimiter)
