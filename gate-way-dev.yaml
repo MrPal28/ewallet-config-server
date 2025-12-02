@@ -1,77 +1,75 @@
+# ======================================================================
+# GATEWAY - Distributed Configuration (Config Server)
+# Environment-driven, safe for local/dev/prod
+# ======================================================================
+
 server:
-  # Gateway inbound port
-  port: ${GATEWAY_PORT}
+  port: ${GATEWAY_PORT:8080}
 
 spring:
   application:
-    # Logical service name for Eureka registration
-    name: ${SPRING_APPLICATION_GATEWAY_NAME}
+    # DO NOT use env placeholders here — bootstrap must always succeed
+    name: gate-way
 
-  # ----------------------------------------------------------------------
-  # Redis Connection (Used by Spring Cloud Gateway RateLimiter)
-  # ----------------------------------------------------------------------
   data:
     redis:
-      host: ${GATEWAY_REDIS_HOST}   # redis container name OR localhost
-      port: ${GATEWAY_REDIS_PORT}   # default 6379
-      timeout: ${GATEWAY_REDIS_TIMEOUT}  # recommended 2000-5000ms
+      host: ${GATEWAY_REDIS_HOST:localhost}
+      port: ${GATEWAY_REDIS_PORT:6379}
+      timeout: ${GATEWAY_REDIS_TIMEOUT:2000}
 
   cloud:
     gateway:
 
-      # ------------------------------------------------------------------
-      # JWT Signature + Time Skew Settings
-      # ------------------------------------------------------------------
+      # ---------------------------------------------------------------
+      # JWT Signature Configuration
+      # ---------------------------------------------------------------
       jwt:
         secret: ${GATEWAY_JWT_SECRET}
-        allowed-skew: ${GATEWAY_JWT_ALLOWED_SKEW:5000} # Prevents minor clock drift issues
+        allowed-skew: ${GATEWAY_JWT_ALLOWED_SKEW:5000}
 
-      # ------------------------------------------------------------------
-      # SCG 4.x WebFlux Route Model
-      # No RouteDefinition YAML format allowed in 4.x
-      # ------------------------------------------------------------------
+      # ---------------------------------------------------------------
+      # Spring Cloud Gateway 4.x Route Architecture (WebFlux)
+      # ---------------------------------------------------------------
       server:
         webflux:
           discovery:
             locator:
-              enabled: false           # You are using manual RouteLocatorConfig
+              enabled: false
               lower-case-service-id: true
 
-          # Route definitions (for RouteLocator)
           routes:
-
             user:
-              path: ${GATEWAY_USER_PATH}           # e.g., /auth/**
-              service-id: ${GATEWAY_USER_SERVICE_ID}
+              path: ${GATEWAY_USER_PATH:/auth/**}
+              service-id: ${GATEWAY_USER_SERVICE_ID:user-service}
 
             wallet:
-              path: ${GATEWAY_WALLET_PATH}         # e.g., /wallet/**
-              service-id: ${GATEWAY_WALLET_SERVICE_ID}
+              path: ${GATEWAY_WALLET_PATH:/wallet/**}
+              service-id: ${GATEWAY_WALLET_SERVICE_ID:wallet-service}
 
             transaction:
-              path: ${GATEWAY_TRANSACTION_PATH}    # e.g., /transaction/**
-              service-id: ${GATEWAY_TRANSACTION_SERVICE_ID}
+              path: ${GATEWAY_TRANSACTION_PATH:/transaction/**}
+              service-id: ${GATEWAY_TRANSACTION_SERVICE_ID:transaction-service}
 
-      # ------------------------------------------------------------------
+      # ---------------------------------------------------------------
       # CORS Configuration
-      # Applied globally across all downstream services
-      # ------------------------------------------------------------------
+      # ---------------------------------------------------------------
       cors:
-        allowed-origins: ${GATEWAY_ALLOWED_ORIGINS}     # Frontend origin
-        allowed-methods: ${GATEWAY_ALLOWED_CORS_METHODS}
-        allowed-headers: ${GATEWAY_ALLOWED_CORS_HEADERS}
-        allow-credentials: ${GATEWAY_CORS_ALLOW_CREDENTIALS}
+        allowed-origins: ${GATEWAY_ALLOWED_ORIGINS:http://localhost:3000}
+        allowed-methods: ${GATEWAY_ALLOWED_CORS_METHODS:GET,POST,PUT,DELETE}
+        allowed-headers: ${GATEWAY_ALLOWED_CORS_HEADERS:Authorization,Content-Type}
+        allow-credentials: ${GATEWAY_CORS_ALLOW_CREDENTIALS:true}
 
-      # ------------------------------------------------------------------
-      # Security Settings (Custom Headers injected post-JWT validation)
-      # ------------------------------------------------------------------
+      # ---------------------------------------------------------------
+      # Security & Custom Headers
+      # ---------------------------------------------------------------
       security:
-        open-endpoints: ${GATEWAY_OPEN_ENDPOINTS} # Comma-separated paths bypassing filter
+        open-endpoints: ${GATEWAY_OPEN_ENDPOINTS:/auth/login,/auth/register}
         header:
-          username: ${GATEWAY_HEADER_USERNAME}
-          user-id: ${GATEWAY_HEADER_USER_ID}
-          role: ${GATEWAY_HEADER_ROLE}
+          username: ${GATEWAY_HEADER_USERNAME:x-username}
+          user-id: ${GATEWAY_HEADER_USER_ID:x-user-id}
+          role: ${GATEWAY_HEADER_ROLE:x-role}
+
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_SERVICE_URL}
+      defaultZone: ${EUREKA_SERVICE_URL:http://localhost:8761/eureka}
