@@ -29,3 +29,25 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_SERVICE_URL}
+
+# ---------------------------------------------------------------------
+#  JWT CONFIG
+# ---------------------------------------------------------------------
+user-service:
+  jwt:
+    secret: ${USER_SERVICE_JWT_SECRET}
+    expiration: ${USER_SERVICE_JWT_EXPIRATION:900000}     # 15 min default
+    allowed-skew: ${USER_SERVICE_JWT_ALLOWED_SKEW:5}      # seconds allowed drift
+
+
+# ---------------------------------------------------------------------
+#  SECURITY OPEN ENDPOINTS (Configured in SecurityConfig)
+# ---------------------------------------------------------------------
+USER_SERVICE_OPEN_ENDPOINTS: ${USER_SERVICE_OPEN_ENDPOINTS}
+
+# ---------------------------------------------------------------------
+#  KAFKA TOPICS
+# ---------------------------------------------------------------------
+USER_SERVICE_KAFKA_TOPIC: ${USER_SERVICE_KAFKA_TOPIC}
+
+
